@@ -1,0 +1,72 @@
+1停用2.4g并用5g加入无线。勾选重置无线设置，新接口命名为wlan1。保存应用
+
+2交换机设置。新建vlan3，在vlan1中lan4 关，vlan3中CPU tagged，lan4 untagged。保存应用
+
+3接口设置
+	lan
+		192.168.3.1
+		保存
+
+	wan 
+		取消开机自动运行
+		跃点数5
+		保存
+	
+	wlan1
+		跃点数10
+		保存
+
+	删除wan6
+	
+	
+	保存应用，20s后禁用并启用网络，地址栏输入192.168.3.1继续配置
+
+
+4QOS
+wan和wlan接口分别下载16000上传4000
+
+保存应用
+
+5负载均衡
+添加2个接口和2个成员，默认配置，跃点比重1
+
+添加策略balanced，选择wan wlan接口，备用主路由表
+添加策略wan_only，选择wan接口，备用主路由表
+
+
+规则
+	添加udp规则，所有udp走wan
+	
+	baiducloud百度云双线规则。对于tcp 117.34.84.3:443分配balanced
+
+	调整规则顺序
+		udp
+		baiducloud
+		https
+		default
+
+保存应用
+
+
+6拷入所有文件，执行脚本Script内容，重启。
+
+
+#7,8已经包含在拷入文件、脚本内，仅作为手动配置参考
+
+
+7防火墙添加ttl修改以及防检测规则
+
+iptables -t nat -A PREROUTING -d 192.168.3.0/24 -j RETURN
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8118
+
+重启防火墙
+
+8dns/dhcp
+
+取消重绑定保护
+高级设置中勾选严谨查序
+
+保存应用
+
+#默认会在工作日晚到次日早断开连接，若要禁用该功能，执行Exceptional days mode内容，若要启用该功能，执行Normal mode内容
+

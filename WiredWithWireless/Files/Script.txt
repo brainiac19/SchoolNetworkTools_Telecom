@@ -1,0 +1,22 @@
+chmod +x /etc/init.d/WanInit;
+/etc/init.d/WanInit enable;
+chmod +x /usr/bin/guardian.sh;
+chmod +x /etc/init.d/Guardian;
+/etc/init.d/Guardian enable;
+/etc/init.d/privoxy disable;
+sed -i 's/"boot_delay" "10"/"boot_delay" "5"/g' /etc/init.d/privoxy;
+sed -i "/START=/c\START=99" /etc/init.d/privoxy;
+/etc/init.d/privoxy enable;
+ssr=$(ls /etc/init.d|grep "shadowsocksr");
+if [ ${#ssr} -gt 1 ];
+then /etc/init.d/shadowsocksr disable;
+sed -i "/START=/c\START=98" /etc/init.d/shadowsocksr;
+/etc/init.d/shadowsocksr enable;
+fi;
+wirelessGrep=$(cat /etc/config/wireless|grep "ChinaTelecom");
+beaconGrep=$(cat /etc/config/wireless|grep "option beacon_int '30'");
+if [ ${#wirelessGrep} -gt 1 ] && [ ${#wirelessGrep} -lt 1 ];
+then sed -i "/config wifi-device 'radio1'/a\ \toption beacon_int '30'" /etc/config/wireless;
+fi;
+sed -i "/option rebind_protection '1'/c\option rebind_protection '0'" /etc/config/dhcp;
+/etc/init.d/dnsmasq restart 2>&1

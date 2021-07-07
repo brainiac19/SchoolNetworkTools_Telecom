@@ -1,0 +1,2 @@
+sed -i "/Holiday=/c\Holiday=0" /usr/bin/guardian.sh;
+/etc/init.d/Guardian restart
